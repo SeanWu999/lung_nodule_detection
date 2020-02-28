@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from scipy.ndimage.interpolation import zoom
 import random
 import cv2
+from config import opt
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -18,40 +19,9 @@ def mynormalize(image):
     image[image < 0] = 0.
     return image
 
-def resample(x, new_shape):
-    scale_factor = new_shape / max(x.shape)
-    if scale_factor < 1.0:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            x = zoom(x, scale_factor, mode="nearest", order=1)
-
-    pad = []
-    for i in x.shape:
-        pad_i = new_shape - i
-        pad.append([pad_i // 2, pad_i - pad_i // 2])
-    x = np.pad(x, pad, mode="constant", constant_values=-1)
-    return x
-
-def sifit_negsample(neg_list,png_list):
-    negsample_list = []
-    sifit_list = [file[-25:-8] for file in png_list]
-    for negfile in neg_list:
-        negname = negfile[-25:-8]
-        if negname in sifit_list:
-            negsample_list.append(negfile)
-    return negsample_list
-
 def aug_flip(x, mode):
     y = cv2.flip(x, mode)
     return y
-
-def data_seg_cut(img,mask):
-    x_start = random.randint(0, 8)
-    y_start = random.randint(0, 8)
-    z_start = random.randint(0, 8)
-    cut_img = img[x_start:x_start + 48, y_start:y_start + 48, z_start:z_start + 48]
-    cut_mask = mask[x_start:x_start + 48, y_start:y_start + 48, z_start:z_start + 48]
-    return cut_img,cut_mask
 
 def data_cut(img):
     x_start = random.randint(0, 8)
@@ -90,15 +60,13 @@ def path_to_data(paths):
 
 class clsDataLoader(data.Dataset):
     def __init__(self):
-        self.img_p_path="./data/cls_3d/train_p_midsize56/"
-        self.img_n_path = "./data/cls_3d/train_n_midsize56/"
+        self.img_p_path= opt.cls_train_path + "/p/"
+        self.img_n_path = opt.cls_train_path + "/n/"
         self.img_path_p = glob(self.img_p_path+"*.npy")
         self.img_path_n = glob(self.img_n_path + "*.npy")
 
         self.p_List = path_to_data(self.img_path_p)
         self.n_List = path_to_data(self.img_path_n)
-        #数据平衡
-        self.p_List = self.p_List * int((len(self.n_List) / len(self.p_List))*0.7)
 
         self.balanceList = self.p_List + self.n_List
         self.file_len = len(self.balanceList)
@@ -129,8 +97,8 @@ class clsDataLoader(data.Dataset):
 
 class clsValDataLoader(data.Dataset):
     def __init__(self):
-        self.img_p_path="./data/cls_3d/train_p_bigsize56/"
-        self.img_n_path = "./data/cls_3d/train_n_bigsize56/"
+        self.img_p_path = opt.cls_test_path + "/p/"
+        self.img_n_path = opt.cls_test_path + "/n/"
         self.img_path_p = glob(self.img_p_path+"*.npy")
         self.img_path_n = glob(self.img_n_path + "*.npy")
         self.img_path = self.img_path_p + self.img_path_n
@@ -143,7 +111,6 @@ class clsValDataLoader(data.Dataset):
         img = data_cut(img)
         img = mynormalize(img)
         img = img * 2 - 1
-        #img = resample(img, new_shape=48)
         img = np.expand_dims(img, axis=0)
         img_tensor = t.from_numpy(img.astype(np.float32))
         return img_tensor, label, index
@@ -154,15 +121,12 @@ class clsValDataLoader(data.Dataset):
 
 class SegDataLoader(data.Dataset):
     def __init__(self):
-        self.img_file_path="./data/cls_3d/seg_train/images/"
-        self.mask_file_path="./data/cls_3d/seg_train/masks/"
+        self.img_file_path = opt.seg_train_path + "/images/"
+        self.mask_file_path = opt.seg_train_path + "/masks/"
         self.img_path = glob(self.img_file_path+"*.npy")
         self.mask_path = glob(self.mask_file_path+"*.npy")
 
         self.image, self.mask = path_to_image_mask(self.img_path,self.mask_path)
-
-        self.image = self.image * 6
-        self.mask = self.mask * 6
         self.file_len = len(self.image)
 
     def __getitem__(self, index):
@@ -181,7 +145,6 @@ class SegDataLoader(data.Dataset):
             img = dataTranspose(img, mode)
             mask = dataTranspose(mask, mode)
 
-        img, mask = data_seg_cut(img,mask)
         img = mynormalize(img)
         img = img * 2 - 1
 
@@ -197,8 +160,8 @@ class SegDataLoader(data.Dataset):
 
 class SegvalDataLoader(data.Dataset):
     def __init__(self):
-        self.img_file_path="./data/cls_3d/seg_validate/images/"
-        self.mask_file_path="./data/cls_3d/seg_validate/masks/"
+        self.img_file_path = opt.seg_test_path + "/images/"
+        self.mask_file_path = opt.seg_test_path + "/masks/"
         self.img_path = glob(self.img_file_path+"*.npy")
         self.mask_path = glob(self.mask_file_path+"*.npy")
         self.image, self.mask = path_to_image_mask(self.img_path,self.mask_path)
@@ -209,7 +172,6 @@ class SegvalDataLoader(data.Dataset):
         img = self.image[index]
         mask = self.mask[index]
 
-        img, mask = data_seg_cut(img, mask)
         img = mynormalize(img)
         img = img * 2 - 1
 

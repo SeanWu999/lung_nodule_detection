@@ -45,7 +45,7 @@ class Segmentation(nn.Module):
 
 
 if __name__ == "__main__":
-    a = t.tensor(t.randn(1, 1, 48, 48, 48))
+    a = t.autograd.Variable(t.randn(1, 1, 48, 48, 48))
     model = Segmentation()
     b = model(a)
     print(b.shape)

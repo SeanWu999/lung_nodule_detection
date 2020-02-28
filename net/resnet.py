@@ -2,6 +2,7 @@ import torch as t
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class ResidualBlock(nn.Module):
     def __init__(self, inchannel, outchannel, stride=1):
         super(ResidualBlock, self).__init__()
@@ -69,6 +70,7 @@ class ResNet(nn.Module):
 
 def ResNet18():
     return ResNet(ResidualBlock)
+
 
 
 if __name__ == "__main__":
