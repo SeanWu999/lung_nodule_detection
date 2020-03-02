@@ -2,7 +2,7 @@
 import torch as t
 import torch.nn as nn
 import torch.nn.functional as F
-from layers import Inception_v1, Inception_v2, BasicConv, Deconv, SingleConv, downsample
+from net.layers import Inception_v1, Inception_v2, BasicConv, Deconv, SingleConv, downsample
 
 class Segmentation(nn.Module):
     def __init__(self):

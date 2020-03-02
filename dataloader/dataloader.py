@@ -2,7 +2,6 @@ from torch.utils import data
 import numpy as np
 from glob import glob
 import torch as t
-from utils.util import normalize
 from matplotlib import pyplot as plt
 from scipy.ndimage.interpolation import zoom
 import random
@@ -113,7 +112,7 @@ class clsValDataLoader(data.Dataset):
         img = img * 2 - 1
         img = np.expand_dims(img, axis=0)
         img_tensor = t.from_numpy(img.astype(np.float32))
-        return img_tensor, label, index
+        return img_tensor, label
 
     def __len__(self):
         return self.file_len
@@ -121,7 +120,7 @@ class clsValDataLoader(data.Dataset):
 
 class SegDataLoader(data.Dataset):
     def __init__(self):
-        self.img_file_path = opt.seg_train_path + "/images/"
+        self.img_file_path = opt.seg_train_path + "/samples/"
         self.mask_file_path = opt.seg_train_path + "/masks/"
         self.img_path = glob(self.img_file_path+"*.npy")
         self.mask_path = glob(self.mask_file_path+"*.npy")
@@ -160,7 +159,7 @@ class SegDataLoader(data.Dataset):
 
 class SegvalDataLoader(data.Dataset):
     def __init__(self):
-        self.img_file_path = opt.seg_test_path + "/images/"
+        self.img_file_path = opt.seg_test_path + "/samples/"
         self.mask_file_path = opt.seg_test_path + "/masks/"
         self.img_path = glob(self.img_file_path+"*.npy")
         self.mask_path = glob(self.mask_file_path+"*.npy")

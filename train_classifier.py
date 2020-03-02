@@ -1,4 +1,3 @@
-from net import loss as Loss_
 from config import opt
 from net.resnet import ResNet18
 import torch as t
@@ -61,7 +60,7 @@ def train():
 
             output = model(input)
             loss = loss_function(output, target)
-            loss_meter.add(loss.data[0])
+            loss_meter.add(loss.cpu().detach().numpy())
 
             loss.backward()
             optimizer.step()
@@ -75,6 +74,7 @@ def train():
             tp = 0
             fp = 0
             fn = 0
+            testacc = 0
 
             val_loss_meter.reset()
             for i, (input, label) in enumerate(val_dataloader):
@@ -95,18 +95,18 @@ def train():
                         fn += 1
 
                 num_correct = (predict == val_target).sum()
-                testacc += int(num_correct.data[0])
+                testacc += int(num_correct.cpu().detach().numpy())
 
                 val_loss = loss_function(val_output, val_target)
-                val_loss_meter.add(val_loss.data[0])
+                val_loss_meter.add(val_loss.cpu().detach().numpy())
 
             testacc = testacc / opt.num_testDatasets
             print("----------------eval------------------")
             print("validating:loss value: %.8f" % val_loss_meter.value()[0])
             print("validating:accucacy: ", testacc)
             print("tp:", tp, "tn:", tn, "fp:", fp, "fn:", fn)
-            print("recall:", tp / (tp + fn + eps))
-            print("precision:", tp / (tp + fp + eps))
+            print("recall:", tp / (tp + fn + opt.eps))
+            print("precision:", tp / (tp + fp + opt.eps))
             print("----------------eval------------------")
             t.save(model.state_dict(), opt.cls_model_save + str(epoch)+'.pkl')
 

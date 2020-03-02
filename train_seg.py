@@ -1,11 +1,10 @@
-from net import loss as Loss
+from utils.loss import SoftDiceLoss
 from net.SegRes import Segmentation
 from config import opt
 from dataloader.dataloader import SegDataLoader, SegvalDataLoader
 import torch as t
 import torchnet as tnt
 from torch.nn import init
-from utils.util import get_optimizer
 import time
 
 def adjust_learning_rate(optimizer, lr):
@@ -25,8 +24,9 @@ def weights_init(m):
 
 if __name__ == "__main__":
 
-    loss_function = Loss.SoftDiceLoss()
-    model = Segmentation().cuda()
+    loss_function = SoftDiceLoss()
+    model = Segmentation()
+    model.cuda()
 
     if opt.seg_model_path is not None:
         model.load_state_dict(t.load(opt.seg_model_path))
@@ -61,8 +61,8 @@ if __name__ == "__main__":
             target = t.autograd.Variable(mask, requires_grad=True).cuda()
             output = model(input)
 
-            loss, _ = loss_function(output, target)
-            loss_meter.add(loss.data[0])
+            loss = loss_function(output, target)
+            loss_meter.add(loss.cpu().detach().numpy())
             loss.backward()
             optimizer.step()
 
@@ -76,8 +76,8 @@ if __name__ == "__main__":
                 val_target = t.autograd.Variable(val_mask, requires_grad=True).cuda()
 
                 val_output = model(val_input)
-                val_loss, _ = loss_function(val_output, val_target)
-                val_loss_meter.add(val_loss.data[0])
+                val_loss = loss_function(val_output, val_target)
+                val_loss_meter.add(val_loss.cpu().detach().numpy())
 
             print("----------------eval------------------")
             print("validating:loss value: %.8f" % val_loss_meter.value()[0])
