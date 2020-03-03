@@ -1,7 +1,7 @@
 # Lung_nodule_detection
 Detection of lung nodules based on CT images 
 
-all codes run in pytorch version = 1.1 and python3.5
+all codes run in **pytorch version = 1.1 and python3.5**
 
 Lung nodule detection is a classic case of artificial intelligence Application in medical field. A good algorithm helps doctor diagnose the lung illness. The following is my algorithm steps that check lung nodules from creating dataset and building neural network, finally I train the model and get a desired result.
 
@@ -42,11 +42,9 @@ when the training ends, we choose the best perference segmentation and classific
 
 ## results
 in LUNA16 datasets, the above method get a result:
-
-recall = 81% 
-
-precision = 48%
+**recall = 81% **
+**precision = 48% **
 
 
 Thanks for Rachel's help ~
-
+Any doubts or errors, please contact me by Emails: wz_sean@163.com
