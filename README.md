@@ -42,8 +42,8 @@ when the training ends, we choose the best perference segmentation and classific
 
 ## results
 in LUNA16 datasets, the above method get a result:
-**recall = 81% **
-**precision = 48% **
+**recall = 81%**
+**precision = 48%**
 
 
 Thanks for Rachel's help ~
