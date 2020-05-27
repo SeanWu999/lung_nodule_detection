@@ -31,7 +31,7 @@ The following is dataset demo, you can find it in dir `./data`.
  ## Starting Training
  After data prepare, find './config.py' file, modify parameters and execute the following command:
  ``` bash
-python3 ./train.py
+python3 ./train_xxx.py
 ```
 Usually, it takes long time for training, when the training ends up, weights file will be generated in path `./save/`, and this file contain weights information of model.
 
